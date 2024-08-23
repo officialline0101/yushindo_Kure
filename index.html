@@ -254,12 +254,6 @@
 
 <div id="treatment-text" style="margin-bottom: 20px;"></div>
 
-        <div class="label">スタッフを選択してください</div>
-        <div class="Nominatedselection">
-            <button type="button" id="firstNominated" onclick="selectNominated(this)">駒井</button>
-            <button type="button" id="repeatNominated" onclick="selectNominated(this)">久保田</button>
-        </div>
-
         <div class="label">希望日時</div>
         <div class="centered-text">
             9:00～12:00【駒井：<span class="circle blue">◯</span>】<br>
@@ -308,7 +302,6 @@
         let selectedFullDate = '';
         let currentDate = new Date();
         let availabilityCache = {};
-        let NominatedCount = '';
 
         document.addEventListener('DOMContentLoaded', function() {
             liff.init({
@@ -329,13 +322,6 @@ let selectedMenuTime = 0;
             buttons.forEach(btn => btn.classList.remove('active'));
             button.classList.add('active');
             visitCount = button.id === 'firstVisit' ? '初めて' : '2回目以降';
-        }
-
-        function selectNominated(button) {
-            const buttons = document.querySelectorAll('.Nominatedselection button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            NominatedCount = button.id === 'firstNominated' ? '駒井' : '久保田';
         }
 
         function selectSymptom(button, treatmentId) {
@@ -429,7 +415,6 @@ function selectDate(cell) {
                 phone: document.getElementById('phone').value,
                 visitCount: visitCount,
                 selectedSymptom: selectedSymptom,
-                NominatedCount: NominatedCount,
                 dates: [selectedFullDate],
                 message: document.getElementById('message').value
             };
@@ -443,7 +428,7 @@ if (!formData.name || !formData.phone) {
             // LINEトークにメッセージを送信
             liff.sendMessages([{
                 type: 'text',
-                text: `【予約フォーム】\n呉施術院\nお名前：${formData.name}\n電話番号：${formData.phone}\nメニュー：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\nスタッフ指定：【${formData.NominatedCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
+                text: `【予約フォーム】\n呉施術院\nお名前：${formData.name}\n電話番号：${formData.phone}\nメニュー：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
                 alert('当日キャンセルは無いようにお願いいたします。キャンセル料発生いたします。');
