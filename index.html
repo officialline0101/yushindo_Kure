@@ -575,13 +575,15 @@ for (let i = 0; i < 7; i++) {
             return acc;
         }, 0);
 
-        // リアルタイムで過ぎた時間のセルを×にする条件
-        if (slotStart < now) {
-            cell.textContent = '✕';
-            cell.classList.add('unavailable');
-            cell.setAttribute('data-date', slotStart.toISOString());
-            continue;
-        }
+// リアルタイムで過ぎた時間のセルを×にする条件
+const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // 現在の時間から1時間後の時間を計算
+
+if (slotStart < now || (slotStart >= now && slotStart < oneHourLater)) {
+    cell.textContent = '✕';
+    cell.classList.add('unavailable');
+    cell.setAttribute('data-date', slotStart.toISOString());
+    continue;
+}
 // 12:30 - 13:59 を✕に設定
 if (
     (slotStart.getHours() === 12 && slotStart.getMinutes() >= 30) || 
