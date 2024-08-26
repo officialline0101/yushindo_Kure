@@ -767,25 +767,6 @@ function updateCalendar(availability, businessDays) {
         cell.setAttribute('data-date', slotStart.toISOString());
     }
 }
-
-// ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
-for (let i = 0; i < 7; i++) {
-    const twentyOClockRow = times.indexOf('17:30');
-    const twentyOneOClockRow = times.indexOf('18:00');
-
-    for (let j = twentyOClockRow; j < times.length; j++) {
-        const cell = table.rows[j].cells[i + 1];
-        const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
-        
-        // 20:00のセルに×がある場合、21:00のセルも×にする
-        if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
-            cell.textContent = '✕';
-            cell.classList.remove('available');
-            cell.classList.add('unavailable'');
-        }
-    }
-}
-
     
         }
 
