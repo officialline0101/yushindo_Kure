@@ -227,6 +227,31 @@
 .red {
     color: red;
 }
+.menu-sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.menu-sections button {
+    flex: 1;
+    padding: 11px 15px; /* ボタンのサイズを少し小さく */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #f7f7f7;
+    cursor: pointer;
+    box-sizing: border-box;
+    text-align: center;
+    white-space: nowrap;
+    margin-bottom: 12px; /* ボタンの間に余白を追加 */
+}
+
+.menu-sections button.active {
+    background-color: #444;
+    color: #fff;
+}
     </style>
 </head>
 <body>
@@ -244,15 +269,21 @@
             <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
         </div>
 
-        <div class="label">メニューをお選びください</div>
-        <div class="symptoms">
-            <button type="button" onclick="selectSymptom(this, 'treatment1')">全身施術(鍼灸+整体)</button>
-            <button type="button" onclick="selectSymptom(this, 'treatment2')">美容鍼</button>
-            <button type="button" onclick="selectSymptom(this, 'treatment3')">全身施術+美容鍼</button>
-            <button type="button" onclick="selectSymptom(this, 'treatment4')">小児はり</button>
+        <!-- 性別が選択されるまで非表示にする部分 -->
+        <div class="label" id="menuLabel">メニューをお選びください</div>
+        <div class="menu-sections" id="menuSections">
+            <!-- ボタンリスト -->
+            <button type="button" onclick="selectSymptom(this, 'treatment1');">全身施術(鍼灸+整体)</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment2');">美容鍼</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment3');">全身施術+美容鍼</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment4');">小児はり</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment5');">全身施術(鍼灸+整体)</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment6');">美容鍼</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment7');">全身施術+美容鍼</button>
+            <button type="button" onclick="selectSymptom(this, 'treatment8');">小児はり</button>
         </div>
 
-<div id="treatment-text" style="margin-bottom: 20px;"></div>
+        <div id="treatment-text" style="margin-bottom: 20px;"></div>
 
         <div class="label">希望日時</div>
         <div class="centered-text">
@@ -317,19 +348,52 @@
 
 let selectedMenuTime = 0;
 
-        function selectVisit(button) {
-            const buttons = document.querySelectorAll('.visit-buttons button');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-            visitCount = button.id === 'firstVisit' ? '初めて' : '2回目以降';
-        }
+        // 初期状態でメニューセクションを非表示にする
+        document.getElementById('menuLabel').style.display = 'none';
+        document.getElementById('menuSections').style.display = 'none';
+
+        function selectVisit(element) {
+            // 訪問回数ボタンの選択状態をリセット
+            document.getElementById('firstVisit').classList.remove('active');
+            document.getElementById('repeatVisit').classList.remove('active');
+            
+            // クリックされたボタンを選択状態にする
+            element.classList.add('active');
+            
+            // 選択された訪問回数を変数に格納
+            visitCount = element.innerText;
+            
+            // 性別が選択されたらメニューセクションを表示する
+            document.getElementById('menuLabel').style.display = 'block';
+            document.getElementById('menuSections').style.display = 'block';
+
+            // メニューの表示をリセット
+            document.querySelectorAll('.menu-sections button').forEach(button => {
+                button.style.display = 'none';
+            });
+
+    // 訪問回数に応じてボタンを表示する
+    if (visitCount === '初めて') {
+        document.querySelectorAll('.menu-sections button:nth-child(-n+4)').forEach(button => {
+            button.style.display = 'inline-block';
+        });
+    } else if (visitCount === '2回目以降') {
+        document.querySelectorAll('.menu-sections button:nth-child(n+5)').forEach(button => {
+            button.style.display = 'inline-block';
+        });
+    }
+}
 
         function selectSymptom(button, treatmentId) {
-            const buttons = document.querySelectorAll('.symptoms button');
+            // すべてのボタンから 'active' クラスを削除
+            const buttons = document.querySelectorAll('.menu-sections button');
             buttons.forEach(btn => btn.classList.remove('active'));
+
+            // クリックされたボタンに 'active' クラスを追加
             button.classList.add('active');
             selectedSymptom = button.textContent;
 
+            // トリートメントテキストを表示
             const treatmentText = document.getElementById('treatment-text');
 
             if (treatmentId === 'treatment1') {
@@ -356,9 +420,32 @@ let selectedMenuTime = 0;
                 <span style="color: blue;">-夜泣き・疳の虫（ギャーギャー泣く）<br>
                 –夜尿（おねしょ）</span><br>
                 <span style="color: blue;">-食欲不振<br>
-                -虚弱体質（風邪をひきやすいなど）</span><br><br>
-
-                `;
+                -虚弱体質（風邪をひきやすいなど）</span><br><br>`;
+            } else if (treatmentId === 'treatment5') {
+                treatmentText.innerHTML = `<div style="text-align: right;">6,500円</div><br>悠心堂<strong>オススメ</strong>の<strong>オーダーメイド治療</strong>です。<br>
+                鍼灸のツボ刺激で内臓から調整し、整体ではカラダのコリと血流改善を狙います。<br>
+                鍼は最小限の刺激で最大限の効果を狙い、<br>10～20本程度使います。<br>
+                お灸は、やけどにならないお灸を使います。<br>
+                <span style="color: blue;">-全身症状の改善・カラダのメンテナンスを希望の方へ。</span>`;
+            } else if (treatmentId === 'treatment6') {
+                treatmentText.innerHTML = `<div style="text-align: right;">4,500円</div><br>健康で美しい顔はとても素敵です。<br>
+                顔の周りのツボに施術することで、血流を促進します。<br>
+                むくみ、シワ、肌質などお顔のお悩みにぜひ。<br>
+                眼精疲労や脳のストレス発散など健康効果も。`;
+            } else if (treatmentId === 'treatment7') {
+                treatmentText.innerHTML = `<div style="text-align: right;">8,700円</div><br><strong>全身治療</strong>と<strong>美容鍼</strong>を同時に受けて頂けるメニューです。<br>
+                顔は内臓の状態を反映します。<br>
+                美容鍼のさらなる効果を求める方にもオススメしています。<br>
+                <span style="color: blue;">-しわ・たるみ・むくみの気になる方。<br>
+                -顔色が悪い・笑顔が固いという方へ。</span>`;
+            } else if (treatmentId === 'treatment8') {
+                treatmentText.innerHTML = `<div style="text-align: right;">1,700円</div><br><strong>刺さない鍼</strong>を使った施術メニューです。<br>
+                痛くなく<strong>気持ちいい</strong>ので子どもでも安心して受けていただけます。<br>
+                生後1ヶ月～小学生までオススメします。<br>
+                <span style="color: blue;">-夜泣き・疳の虫（ギャーギャー泣く）<br>
+                –夜尿（おねしょ）</span><br>
+                <span style="color: blue;">-食欲不振<br>
+                -虚弱体質（風邪をひきやすいなど）</span><br><br>`;
             } else {
                 treatmentText.innerHTML = '';
             }
@@ -376,13 +463,6 @@ let selectedMenuTime = 0;
         repairLabel.style.display = 'none';
         repairButtons.style.display = 'none';
     }
-
-        function showMenu(menu) {
-            document.querySelectorAll('.menu-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(menu).classList.add('active');
-        }
         
 function selectDate(cell) {
     // "unavailable" クラスが付いている場合はクリックを無効化
@@ -431,7 +511,7 @@ if (!formData.name || !formData.phone) {
                 text: `【予約フォーム】\n呉施術院\nお名前：${formData.name}\n電話番号：${formData.phone}\nメニュー：${formData.selectedSymptom}${formData.visitCount}\n来店回数：【${formData.visitCount}】\n希望日時：\n ${formData.dates[0]}\nメッセージ：${formData.message}`
             }]).then(() => {
                 /* メッセージ送信成功時の処理 */
-                alert('当日キャンセルは無いようにお願いいたします。キャンセル料発生いたします。');
+                alert('当日キャンセルは無いようにお願いいたします。');
                 /* LIFFウィンドウを閉じる */
                 liff.closeWindow();
             }).catch((err) => {
@@ -460,7 +540,7 @@ async function fetchAvailability(date) {
         return;
     }
 
-    const url = 'https://script.google.com/macros/s/AKfycbxeJ3XxmjVzT0VhimtJpqg0wkmTeRAnXoUc9F6xdQHIZbQxIIwEJst2_T7Vy7Gyx2O_/exec' + 
+    const url = 'https://script.google.com/macros/s/AKfycbz78InkMHFCKFKU3MdH3ypbVtJgHfM-CX3pZw2vUsvPj3LErTEVlL2kV29FEiy_FPYD/exec' + 
                 `?startTime=${startTime.toISOString()}&endTime=${endTime.toISOString()}`;
 
     try {
@@ -497,9 +577,10 @@ function updateCalendar(availability, businessDays) {
         '12:00', '12:30', '13:00', '13:30',
         '14:00', '14:30', '15:00', '15:30',
         '16:00', '16:30', '17:00', '17:30',
-        '18:00', '18:30', '19:00'
+        '18:00'
     ];
 
+    // テーブルが初期化されていない場合、時間と曜日のヘッダーを設定
     if (table.rows.length === 0) {
         for (const time of times) {
             const row = document.createElement('tr');
@@ -525,155 +606,186 @@ function updateCalendar(availability, businessDays) {
         for (let i = 1; i < row.cells.length; i++) {
             row.cells[i].textContent = '';
             row.cells[i].removeAttribute('data-date');
-            row.cells[i].classList.remove('available', 'unavailable', 'selected');
+            row.cells[i].classList.remove('available', 'unavailable', 'selected', 'blue', 'red');
         }
     }
 
-// 現在の日時を取得
-const now = new Date();
+    // ここから下は既存のコードをそのまま続ける...
+    // 現在の日時を取得
+    const now = new Date();
 
-// テーブルの内容を更新
-for (let i = 0; i < 7; i++) {
-    const day = new Date(currentDate);
-    day.setDate(day.getDate() + i);
+    // テーブルの内容を更新
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(currentDate);
+        day.setDate(day.getDate() + i);
 
-    let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
+        let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
 
-    availability.forEach(slot => {
-        const eventStart = new Date(slot.startTime);
-        const eventEnd = new Date(slot.endTime);
-        if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
-            businessEventTimes.push({ start: eventStart, end: eventEnd });
-        }
-    });
-
-    for (let j = 0; j < times.length; j++) {
-        const cell = table.rows[j].cells[i + 1];
-        const slotStart = new Date(day);
-        slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
-
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotStart.getMinutes() + 30);
-
-        const isBusinessDay = businessDays.some(businessDay => {
-            const businessDayStart = new Date(businessDay.start);
-            const businessDayEnd = new Date(businessDay.end);
-            return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
-        });
-
-        const isBusinessEventTime = businessEventTimes.some(event => {
-            return slotStart < event.end && event.start < slotEnd;
-        });
-
-        const count = availability.reduce((acc, slot) => {
+        availability.forEach(slot => {
             const eventStart = new Date(slot.startTime);
             const eventEnd = new Date(slot.endTime);
-
-            if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
-                return acc + 1;
+            if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
+                businessEventTimes.push({ start: eventStart, end: eventEnd });
             }
-            return acc;
-        }, 0);
+        });
 
-// リアルタイムで過ぎた時間のセルを×にする条件
-const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // 現在の時間から1時間後の時間を計算
-
-if (slotStart < now || (slotStart >= now && slotStart < oneHourLater)) {
-    cell.textContent = '✕';
-    cell.classList.add('unavailable');
-    cell.setAttribute('data-date', slotStart.toISOString());
-    continue;
-}
-// 12:30 - 13:59 を✕に設定
-if (
-    (slotStart.getHours() === 12 && slotStart.getMinutes() >= 30) || 
-    (slotStart.getHours() === 13 && slotStart.getMinutes() < 60)
-) {
-    cell.textContent = '✕';
-    cell.classList.add('unavailable'); // クラスを追加
-    cell.setAttribute('data-date', slotStart.toISOString());
-    continue;
-}
-// 営業日のイベント時間内に他のイベントがある場合
-if (isBusinessEventTime && count > 0) {
-    cell.textContent = '✕'; // イベントがあるので利用不可
-    cell.classList.add('unavailable'); // 利用不可スタイルを適用
-} 
-// 営業日の時間帯で、他にイベントがない場合
-else if (isBusinessEventTime) {
-    // 午前で予定がある場合は黒×
-    if ((slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) && count > 0) {
-        cell.textContent = '✕'; // イベントがあるので利用不可
-        cell.classList.add('unavailable'); // 利用不可スタイルを適用
-    }
-    // 午前は12時30分まで青、12時30分以降は赤
-    else if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
-        cell.classList.add('available', 'blue'); // 午前は青で利用可能と表示
-    } else {
-        cell.classList.add('available', 'red'); // 午後は赤で利用可能と表示
-    }
-} 
-// 営業日で他にイベントがある場合
-else if (businessEventTimes.length > 0) {
-    cell.textContent = '✕'; // 他にイベントがあるので利用不可
-    cell.classList.add('unavailable'); // 利用不可スタイルを適用
-} 
-// 休日（日曜日）で、ビジネスデーでない場合
-else if (slotStart.getDay() === 0 && !isBusinessDay && businessEventTimes.length === 0) {
-    cell.textContent = '✕'; // 休日のため利用不可
-    cell.classList.add('unavailable'); // 利用不可スタイルを適用
-} 
-// 休日（金曜日）で、ビジネスデーでない場合
-else if (slotStart.getDay() === 5 && !isBusinessDay && businessEventTimes.length === 0) {
-    cell.textContent = '✕'; // 休日のため利用不可
-    cell.classList.add('unavailable'); // 利用不可スタイルを適用
-} 
-// 営業日でイベントがない場合
-else if (isBusinessEventTime && count === 0) {
-    // 午前は12時30分まで青、12時30分以降は赤
-    if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
-        cell.classList.add('available', 'blue'); // 午前は青で利用可能と表示
-    } else {
-        cell.classList.add('available', 'red'); // 午後は赤で利用可能と表示
-    }
-} 
-// その他の場合（利用可能なイベントがない場合）
-else if (count === 0) {
-    // 午前は12時30分まで青、12時30分以降は赤
-    if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
-        cell.classList.add('available', 'blue'); // 午前は青で利用可能と表示
-    } else {
-        cell.classList.add('available', 'red'); // 午後は赤で利用可能と表示
-    }
-} 
-// どの条件にも当てはまらない場合
-else {
-    cell.textContent = '✕'; // 利用不可
-    cell.classList.add('unavailable'); // 利用不可スタイルを適用
-}
-
-// セルに日付を設定
-cell.setAttribute('data-date', slotStart.toISOString());
-    }
-}
-
-    // ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
-    for (let i = 0; i < 7; i++) {
-        const twentyOClockRow = times.indexOf('18:30');
-        const twentyOneOClockRow = times.indexOf('19:00');
-
-        for (let j = twentyOClockRow; j < times.length; j++) {
+        for (let j = 0; j < times.length; j++) {
             const cell = table.rows[j].cells[i + 1];
-            const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
-            
-            // 20:00のセルに×がある場合、21:00のセルも×にする
-            if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
-                cell.textContent = '✕';
-                cell.classList.remove('available');
-                cell.classList.add('unavailable');
+            const slotStart = new Date(day);
+            slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
+
+            const slotEnd = new Date(slotStart);
+            slotEnd.setMinutes(slotStart.getMinutes() + 30);
+
+            const isBusinessDay = businessDays.some(businessDay => {
+                const businessDayStart = new Date(businessDay.start);
+                const businessDayEnd = new Date(businessDay.end);
+                return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
+            });
+
+            const isBusinessEventTime = businessEventTimes.some(event => {
+                return slotStart < event.end && event.start < slotEnd;
+            });
+
+            const count = availability.reduce((acc, slot) => {
+                const eventStart = new Date(slot.startTime);
+                const eventEnd = new Date(slot.endTime);
+
+                if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
+
+        // リアルタイムで過ぎた時間のセルを×にする条件
+        const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // 現在の時間から1時間後の時間を計算
+
+        if (slotStart < now || (slotStart >= now && slotStart < oneHourLater)) {
+            cell.textContent = '✕';
+            cell.classList.add('unavailable');
+            cell.setAttribute('data-date', slotStart.toISOString());
+            continue;
+        }
+
+        // 土曜日だけ16:30から18:00までを✕に設定
+        if (
+            slotStart.getDay() === 6 && // 土曜日の場合
+            ((slotStart.getHours() === 16 && slotStart.getMinutes() >= 30) || 
+            (slotStart.getHours() === 17) || 
+            (slotStart.getHours() === 18 && slotStart.getMinutes() < 30))
+        ) {
+            cell.textContent = '✕';
+            cell.classList.add('unavailable');
+            cell.setAttribute('data-date', slotStart.toISOString());
+            continue;
+        }
+
+        // 土曜日以外の曜日で12:30 - 13:59 を✕に設定
+        if (
+            (slotStart.getDay() !== 6) && // 土曜日以外
+            ((slotStart.getHours() === 12 && slotStart.getMinutes() >= 30) || 
+            (slotStart.getHours() === 13 && slotStart.getMinutes() < 60))
+        ) {
+            cell.textContent = '✕';
+            cell.classList.add('unavailable');
+            cell.setAttribute('data-date', slotStart.toISOString());
+            continue;
+        }
+
+        // 営業日の時間帯で、他にイベントがない場合
+        else if (isBusinessEventTime) {
+            // 土曜日で特別な処理を追加
+            if (slotStart.getDay() === 6) { // 土曜日の場合
+                if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue'); // 午前は青で利用可能
+                } else {
+                    cell.classList.add('available', 'blue'); // 午後は赤で利用可能
+                }
+            }
+            // 他の曜日の処理
+            else {
+                if ((slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) && count > 0) {
+                    cell.textContent = '✕';
+                    cell.classList.add('unavailable');
+                } else if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue'); // 午前は青で利用可能
+                } else {
+                    cell.classList.add('available', 'red'); // 午後は赤で利用可能
+                }
             }
         }
+        // 営業日で他にイベントがある場合
+        else if (businessEventTimes.length > 0) {
+            cell.textContent = '✕';
+            cell.classList.add('unavailable');
+        }
+        // 営業日でイベントがない場合
+        else if (isBusinessDay && count === 0) {
+            // 土曜日で特別な処理を追加
+            if (slotStart.getDay() === 6) { // 土曜日の場合
+                if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue');
+                } else {
+                    cell.classList.add('available', 'blue');
+                }
+            }
+            // 他の曜日の処理
+            else {
+                if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue');
+                } else {
+                    cell.classList.add('available', 'red');
+                }
+            }
+        }
+        // その他の場合（利用可能なイベントがない場合）
+        else if (count === 0) {
+            // 土曜日で特別な処理を追加
+            if (slotStart.getDay() === 6) { // 土曜日の場合
+                if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue');
+                } else {
+                    cell.classList.add('available', 'blue');
+                }
+            }
+            // 他の曜日の処理
+            else {
+                if (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) {
+                    cell.classList.add('available', 'blue');
+                } else {
+                    cell.classList.add('available', 'red');
+                }
+            }
+        }
+        // どの条件にも当てはまらない場合
+        else {
+            cell.textContent = '✕';
+            cell.classList.add('unavailable');
+        }
+
+        // セルに日付を設定
+        cell.setAttribute('data-date', slotStart.toISOString());
     }
+}
+
+// ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
+for (let i = 0; i < 7; i++) {
+    const twentyOClockRow = times.indexOf('17:30');
+    const twentyOneOClockRow = times.indexOf('18:00');
+
+    for (let j = twentyOClockRow; j < times.length; j++) {
+        const cell = table.rows[j].cells[i + 1];
+        const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
+        
+        // 20:00のセルに×がある場合、21:00のセルも×にする
+        if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
+            cell.textContent = '✕';
+            cell.classList.remove('available');
+            cell.classList.add('unavailable'');
+        }
+    }
+}
+
     
         }
 
