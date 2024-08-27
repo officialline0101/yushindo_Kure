@@ -539,7 +539,7 @@ async function fetchAvailability(date) {
         return;
     }
 
-    const url = 'https://script.google.com/macros/s/AKfycbz78InkMHFCKFKU3MdH3ypbVtJgHfM-CX3pZw2vUsvPj3LErTEVlL2kV29FEiy_FPYD/exec' + 
+    const url = 'https://script.google.com/macros/s/AKfycbwKSCPjiCpsdT5jHZj7Ej4pm75vC8mNxVel_-y5E_EyimLiU4Q0zZd5CJfRRYAYtpxISQ/exec' + 
                 `?startTime=${startTime.toISOString()}&endTime=${endTime.toISOString()}`;
 
     try {
@@ -788,6 +788,59 @@ else if (slotStart.getDay() === 5 && !isBusinessDay && businessEventTimes.length
         cell.setAttribute('data-date', slotStart.toISOString());
     }
 }
+
+// ×と×の間のセル数が3未満の場合、その間のセルを×にする
+for (let j = 0; j < times.length - 1; j++) {
+    let start = -1;
+    let end = -1;
+
+    // ×の開始位置を見つける
+    if (table.rows[j].cells[i + 1].textContent === '✕') {
+        start = j;
+    }
+
+    // その次の×を見つける
+    for (let k = j + 1; k < times.length; k++) {
+        if (table.rows[k].cells[i + 1].textContent === '✕') {
+            end = k;
+            break;
+        }
+    }
+
+    // ×と×の間のセル数が3未満の場合、その間のセルを×に変更
+    if (start !== -1 && end !== -1 && end - start < 3) {
+        for (let k = start + 1; k < end; k++) {
+            const cell = table.rows[k].cells[i + 1];
+            cell.textContent = '✕';
+            cell.classList.remove('available', 'red', 'blue'); // 既存のクラスを削除
+            cell.classList.add('unavailable', 'black-circle'); // 必ず黒にする
+        }
+    }
+
+    // 次のループで位置を調整
+    if (end !== -1) {
+        j = end - 1; 
+    }
+}
+    }
+
+    // ×と×の間のセル数が3未満の場合、その間のセルを×にする部分の後に以下を追加
+    for (let i = 0; i < 7; i++) {
+        const twentyOClockRow = times.indexOf('17:30');
+        const twentyOneOClockRow = times.indexOf('18:00');
+
+        for (let j = twentyOClockRow; j < times.length; j++) {
+            const cell = table.rows[j].cells[i + 1];
+            const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
+            
+            // 15:30のセルに×がある場合、16:00のセルも×にする
+            if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
+                cell.textContent = '✕';
+                cell.classList.remove('available');
+                cell.classList.add('unavailable');
+            }
+        }
+    }
     
         }
 
