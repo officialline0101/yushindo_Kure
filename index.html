@@ -823,25 +823,6 @@ for (let j = 0; j < times.length - 1; j++) {
 }
     }
 
-// 15:30のセルに×がある場合、16:00のセルも×にする部分の修正
-for (let i = 0; i < 7; i++) {
-    const twentyOClockRow = times.indexOf('17:30');
-    const twentyOneOClockRow = times.indexOf('18:00');
-
-    for (let j = twentyOClockRow; j < times.length; j++) {
-        const cell = table.rows[j].cells[i + 1];
-        const aboveCell = table.rows[twentyOClockRow].cells[i + 1];
-        
-        // 15:30のセルに×がある場合、16:00のセルも×にする
-        if (aboveCell.textContent === '✕' && j >= twentyOneOClockRow) {
-            cell.textContent = '✕';
-            cell.classList.remove('available', 'red', 'blue'); // 既存のクラスを削除
-            cell.classList.add('unavailable', 'black-circle'); // 必ず黒にする
-        }
-    }
-}
-
-    
         }
 
         function updateCalendarHeader(date) {
