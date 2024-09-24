@@ -612,52 +612,49 @@ function updateCalendar(availability, businessDays) {
     // ここから下は既存のコードをそのまま続ける...
     // 現在の日時を取得
     const now = new Date();
-// 現在の日付が何曜日か取得 (0が日曜日, 1が月曜日...)
-const startDay = currentDate.getDay(); // 現在の曜日を取得
 
-// テーブルの内容を更新
-for (let i = 0; i < 7; i++) {
-    const day = new Date(currentDate);
-    // 現在の曜日に合わせて開始日を調整
-    day.setDate(day.getDate() - startDay + i);
+    // テーブルの内容を更新
+    for (let i = 0; i < 7; i++) {
+        const day = new Date(currentDate);
+        day.setDate(day.getDate() + i);
 
-    let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
+        let businessEventTimes = []; // 営業日のイベント時間帯を記録する配列
 
-    availability.forEach(slot => {
-        const eventStart = new Date(slot.startTime);
-        const eventEnd = new Date(slot.endTime);
-        if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
-            businessEventTimes.push({ start: eventStart, end: eventEnd });
-        }
-    });
-
-    for (let j = 0; j < times.length; j++) {
-        const cell = table.rows[j].cells[i + 1];
-        const slotStart = new Date(day);
-        slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
-
-        const slotEnd = new Date(slotStart);
-        slotEnd.setMinutes(slotStart.getMinutes() + 30);
-
-        const isBusinessDay = businessDays.some(businessDay => {
-            const businessDayStart = new Date(businessDay.start);
-            const businessDayEnd = new Date(businessDay.end);
-            return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
-        });
-
-        const isBusinessEventTime = businessEventTimes.some(event => {
-            return slotStart < event.end && event.start < slotEnd;
-        });
-
-        const count = availability.reduce((acc, slot) => {
+        availability.forEach(slot => {
             const eventStart = new Date(slot.startTime);
             const eventEnd = new Date(slot.endTime);
-
-            if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
-                return acc + 1;
+            if (eventStart.toDateString() === day.toDateString() && slot.title === "営業日") {
+                businessEventTimes.push({ start: eventStart, end: eventEnd });
             }
-            return acc;
-        }, 0);
+        });
+
+        for (let j = 0; j < times.length; j++) {
+            const cell = table.rows[j].cells[i + 1];
+            const slotStart = new Date(day);
+            slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
+
+            const slotEnd = new Date(slotStart);
+            slotEnd.setMinutes(slotStart.getMinutes() + 30);
+
+            const isBusinessDay = businessDays.some(businessDay => {
+                const businessDayStart = new Date(businessDay.start);
+                const businessDayEnd = new Date(businessDay.end);
+                return slotStart >= businessDayStart && slotEnd <= businessDayEnd;
+            });
+
+            const isBusinessEventTime = businessEventTimes.some(event => {
+                return slotStart < event.end && event.start < slotEnd;
+            });
+
+            const count = availability.reduce((acc, slot) => {
+                const eventStart = new Date(slot.startTime);
+                const eventEnd = new Date(slot.endTime);
+
+                if (eventStart < slotEnd && slotStart < eventEnd && slot.title !== "営業日") {
+                    return acc + 1;
+                }
+                return acc;
+            }, 0);
 
         // リアルタイムで過ぎた時間のセルを×にする条件
         const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // 現在の時間から1時間後の時間を計算
