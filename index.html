@@ -436,6 +436,12 @@
     <div class="container">
         <h1>悠心堂 呉施術院<br>予約フォーム</h1>
 
+        <div class="label">ご来院回数をお選びください</div>
+        <div class="visit-buttons">
+            <button type="button" id="firstVisit" onclick="selectVisit(this)">初めて</button>
+            <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
+        </div>
+        
         <div class="label">メニューをお選びください</div>
         <div class="info-text">※メニューを選択すると空き状況のカレンダーが表示されます</div>
         <div class="symptoms">
@@ -487,12 +493,6 @@
 
         <div class="label">電話番号</div>
         <input type="tel" id="phone" placeholder="電話番号を入力してください">
-
-        <div class="label">ご来院回数をお選びください</div>
-        <div class="visit-buttons">
-            <button type="button" id="firstVisit" onclick="selectVisit(this)">初めて</button>
-            <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
-        </div>
 
         <div class="label">お悩みの症状をお書きください</div>
         <textarea id="message" rows="4" placeholder="メッセージを入力してください"></textarea>
