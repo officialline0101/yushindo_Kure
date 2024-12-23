@@ -435,13 +435,19 @@
 <body>
     <div class="container">
         <h1>悠心堂 呉施術院<br>予約フォーム</h1>
+        
+        <div class="label">氏名</div>
+        <input type="text" id="name" placeholder="お名前を入力してください">
+
+        <div class="label">電話番号</div>
+        <input type="tel" id="phone" placeholder="電話番号を入力してください">
 
         <div class="label">ご来院回数をお選びください</div>
         <div class="visit-buttons">
             <button type="button" id="firstVisit" onclick="selectVisit(this)">初めて</button>
             <button type="button" id="repeatVisit" onclick="selectVisit(this)">2回目以降</button>
         </div>
-        
+
         <div class="label">メニューをお選びください</div>
         <div class="info-text">※メニューを選択すると空き状況のカレンダーが表示されます</div>
         <div class="symptoms">
@@ -487,12 +493,6 @@
                 <div class="loading-text">読み込み中...</div>
             </div>
         </div>
-        
-        <div class="label">氏名</div>
-        <input type="text" id="name" placeholder="お名前を入力してください">
-
-        <div class="label">電話番号</div>
-        <input type="tel" id="phone" placeholder="電話番号を入力してください">
 
         <div class="label">お悩みの症状をお書きください</div>
         <textarea id="message" rows="4" placeholder="メッセージを入力してください"></textarea>
@@ -792,33 +792,32 @@
 
             console.log('選択された訪問回数の時間:', selectedVisitTime);
 
-            // 来院回数に応じてメニューを変更
-            const symptomsContainer = document.querySelector('.symptoms');
-            if (visitCount === "2回目以降") {
-                symptomsContainer.innerHTML = `
+    // 来院回数に応じてメニューを変更
+    const symptomsContainer = document.querySelector('.symptoms');
+    if (visitCount === "2回目以降") {
+        symptomsContainer.innerHTML = `
             <button type="button" onclick="selectSymptom(this, 'treatment5')" data-price="6500">全身施術(鍼灸+整体)</button>
             <button type="button" onclick="selectSymptom(this, 'treatment6')" data-price="4500">美容鍼</button>
             <button type="button" onclick="selectSymptom(this, 'treatment7')" data-price="8700">全身施術+美容鍼</button>
             <button type="button" onclick="selectSymptom(this, 'treatment8')" data-price="1700">小児はり</button>
         `;
-            } else {
-                // 初めての場合、元のメニューに戻す
-                symptomsContainer.innerHTML = `
+    } else {
+        // 初めての場合、元のメニューに戻す
+        symptomsContainer.innerHTML = `
             <button type="button" onclick="selectSymptom(this, 'treatment1')" data-price="8700">全身施術(鍼灸+整体)</button>
             <button type="button" onclick="selectSymptom(this, 'treatment2')" data-price="6700">美容鍼</button>
             <button type="button" onclick="selectSymptom(this, 'treatment3')" data-price="10900">全身施術+美容鍼</button>
             <button type="button" onclick="selectSymptom(this, 'treatment4')" data-price="3900">小児はり</button>
         `;
-            }
+    }
 
-            // メニュー変更後にイベントリスナーを再設定する
-            document.querySelectorAll('.symptoms button').forEach(button => {
-                button.addEventListener('click', updateDisplayInfo);
-            });
+    // メニュー変更後にカレンダーを表示
+    const calendarContainer = document.querySelector('.calendar-container');
+    calendarContainer.style.display = 'block';
 
-            // カレンダーを更新するために取得する日付を渡す
-            fetchAvailability(currentDate);
-        }
+    // 空き状況を再取得
+    fetchAvailability(currentDate);
+}
 
         function selectDate(cell) {
             // "unavailable" クラスが付いている場合はクリックを無効化
