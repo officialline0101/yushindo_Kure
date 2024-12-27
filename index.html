@@ -1037,31 +1037,6 @@ if (table.rows.length === 0) {
                         continue;
                     }
 
-                    // 18時以降に終了する予約を不可にする (17:30は可)
-                    if (slotEnd.getHours() === 18 && slotEnd.getMinutes() > 30) {
-                        cell.textContent = '✕';
-                        cell.classList.add('unavailablegray');
-                        continue;
-                    } else if (slotEnd.getHours() > 18) {
-                        cell.textContent = '✕';
-                        cell.classList.add('unavailablegray');
-                        continue;
-                    }
-
-                    // 土曜日だけ 16:30 までを許可
-                    const dayOfWeek = slotEnd.getDay(); // 0:日曜, 1:月曜, ..., 6:土曜
-                    if (dayOfWeek === 6) { // 土曜日の場合
-                        if (slotEnd.getHours() === 16 && slotEnd.getMinutes() > 30) {
-                            cell.textContent = '✕';
-                            cell.classList.add('unavailablegray');
-                            continue;
-                        } else if (slotEnd.getHours() > 16) {
-                            cell.textContent = '✕';
-                            cell.classList.add('unavailablegray');
-                            continue;
-                        }
-                    }
-
                     // リアルタイムで過ぎた時間のセルを×にする条件
                     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000); // 現在の時間から1時間後の時間を計算
 
