@@ -1048,17 +1048,6 @@ if (table.rows.length === 0) {
                         continue;
                     }
 
-                    // 11:30 から 14:00 を不可にする
-                    if (slotEnd.getHours() >= 11 && slotEnd.getHours() < 14) {
-                        if (slotEnd.getHours() === 11 && slotEnd.getMinutes() < 30) {
-                            // 11:00-11:30は許可
-                        } else {
-                            cell.textContent = '✕';
-                            cell.classList.add('unavailablegray');
-                            continue;
-                        }
-                    }
-
                     // 土曜日だけ 16:30 までを許可
                     const dayOfWeek = slotEnd.getDay(); // 0:日曜, 1:月曜, ..., 6:土曜
                     if (dayOfWeek === 6) { // 土曜日の場合
