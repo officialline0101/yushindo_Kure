@@ -1487,15 +1487,29 @@ if (table.rows.length === 0) {
                     }
 
                     const slotStart = new Date(day);
-                    slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
+slotStart.setHours(parseInt(times[j].split(':')[0]), parseInt(times[j].split(':')[1]), 0, 0);
 
-                    const slotEnd = new Date(slotStart);
-                    let menuDuration = selectedMenuTime || 10;
-                    let visitDuration = selectedVisitTime || 0;
-                    let irradiationsDuration = selectedirradiationsTime || 0;
+let slotEnd = new Date(slotStart);
+let menuDuration = selectedMenuTime || 10;
+let visitDuration = selectedVisitTime || 0;
+let irradiationsDuration = selectedirradiationsTime || 0;
 
-                    // メニュー時間と訪問回数の時間を合計して、終了時間を設定
-                    slotEnd.setMinutes(slotStart.getMinutes() + menuDuration + visitDuration + irradiationsDuration);
+// 仮に終了時間を計算
+slotEnd.setMinutes(slotStart.getMinutes() + menuDuration + visitDuration + irradiationsDuration);
+
+// ==== ここから営業日専用制御 ====
+if (businessEventTimes.length > 0) {
+  const isFullyInsideBusinessEvent = businessEventTimes.some(event => {
+    return slotStart >= event.start && slotEnd <= event.end;
+  });
+
+  // 営業日イベントがある日で、時間がイベント外なら × にする
+  if (!isFullyInsideBusinessEvent) {
+    cell.textContent = '✕';
+    cell.classList.add('unavailable');
+    continue;
+  }
+}
 
                     // 終了時間が翌日 (0時以降) になる場合は✕に設定
                     if (slotEnd.getDate() !== slotStart.getDate()) {
