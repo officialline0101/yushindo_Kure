@@ -1548,6 +1548,13 @@ if (businessEventTimes.length > 0) {
                         return acc;
                     }, 0);
 
+// 「営業日」中に他のイベントがある場合は✕
+if (isBusinessEventTime && count > 0) {
+    cell.textContent = '✕';
+    cell.classList.add('unavailable');
+    cell.setAttribute('data-date', slotStart.toISOString());
+    continue;
+}
                     // 土曜日だけ16:30から18:00までを✕に設定
                     if (
                         slotStart.getDay() === 6 && // 土曜日の場合
@@ -1606,11 +1613,6 @@ if (businessEventTimes.length > 0) {
                                 cell.classList.add('available', 'blue'); // 午後は赤で利用可能
                             }
                         }
-                    }
-                    // 営業日で他にイベントがある場合
-                    else if (businessEventTimes.length > 0) {
-                        cell.textContent = '✕';
-                        cell.classList.add('unavailable');
                     }
                     // 休日（日曜日）で、ビジネスデーでない場合
                     else if (slotStart.getDay() === 0 && !isBusinessDay && businessEventTimes.length === 0) {
