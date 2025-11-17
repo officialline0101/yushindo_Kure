@@ -1581,6 +1581,12 @@ const blockingEvents = availability
                     const fallbackColor = (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) ? 'red' : 'blue';
                     let finalColor = fallbackColor;
 
+// ★★★ ここに追加 ★★★
+// 土曜日は初期カラーを強制で赤にする
+if (slotStart.getDay() === 6) {
+    finalColor = 'red';
+}
+                    
 // ▼ 営業日内なら“✕を○に上書き”して良い（昼休みなど）
 //   ※メニュー時間による slotEnd の伸びに影響されないよう、
 //     「スロットの開始時刻が営業イベントに含まれているか」だけを見る
