@@ -1392,11 +1392,12 @@
             return null; // 両方 or どちらも無い
         }
 
-/** イベントタイトルが営業日系かどうか判定 */
-function isBusinessTitle(title) {
-    const t = String(title || '').trim();
-    return /^(営業日|担当駒井|担当久保田)$/.test(t);
-}
+        /** イベントタイトルが営業日系かどうか判定 */
+        function isBusinessTitle(title) {
+            const t = String(title || '').trim();
+            if (t.includes('担当久保田')) return true;
+            return /^(営業日|担当駒井)$/.test(t);
+        }
 
         /** 可用性データ取得 */
         async function fetchAvailability(date) {
@@ -1422,15 +1423,22 @@ function isBusinessTitle(title) {
                 const data = await response.json();
                 console.log('[fetchAvailability] raw:', data);
 
-// 「営業日」だけ抜き出し（title/summary 両対応）＋場所から色を判定
-const businessDays = data
-    // ここを === '営業日' から isBusinessTitle に変更
-    .filter(ev => isBusinessTitle(ev.summary || ev.title))
-    .map(ev => ({
-        start: new Date(ev.startTime),
-        end: new Date(ev.endTime),
-        color: detectBusinessColor(ev.location || '')
-    }));
+                // 「営業日」だけ抜き出し（title/summary 両対応）＋場所から色を判定
+                const businessDays = data
+                    // ここを === '営業日' から isBusinessTitle に変更
+                    .filter(ev => isBusinessTitle(ev.summary || ev.title))
+                    .map(ev => {
+                        const title = ev.summary || ev.title || '';
+                        let color = detectBusinessColor(ev.location || '');
+                        if (title.includes('担当久保田')) {
+                            color = 'blue';
+                        }
+                        return {
+                            start: new Date(ev.startTime),
+                            end: new Date(ev.endTime),
+                            color: color
+                        };
+                    });
                 // キャッシュ保存
                 availabilityCache[cacheKey] = { availability: data, businessDays };
 
@@ -1502,32 +1510,35 @@ const businessDays = data
                 const day = new Date(currentDate);
                 day.setDate(day.getDate() + i);
 
-// 当日の「営業日」イベントを抽出（start/end/color）
-const businessEventTimes = [];
-availability.forEach(slot => {
-    const eventStart = new Date(slot.startTime);
-    const eventEnd = new Date(slot.endTime);
-    const title = (slot.summary || slot.title) || '';
-    const isBiz = slot.isBusinessDay === true || isBusinessTitle(title); // ← ここを変更
-    if (eventStart.toDateString() === day.toDateString() && isBiz) {
-        const color = detectBusinessColor(slot.location || '');
-        businessEventTimes.push({ start: eventStart, end: eventEnd, color });
-    }
-});
+                // 当日の「営業日」イベントを抽出（start/end/color）
+                const businessEventTimes = [];
+                availability.forEach(slot => {
+                    const eventStart = new Date(slot.startTime);
+                    const eventEnd = new Date(slot.endTime);
+                    const title = (slot.summary || slot.title) || '';
+                    const isBiz = slot.isBusinessDay === true || isBusinessTitle(title); // ← ここを変更
+                    if (eventStart.toDateString() === day.toDateString() && isBiz) {
+                        let color = detectBusinessColor(slot.location || '');
+                        if (title.includes('担当久保田')) {
+                            color = 'blue';
+                        }
+                        businessEventTimes.push({ start: eventStart, end: eventEnd, color });
+                    }
+                });
                 const hasBusiness = businessEventTimes.length > 0;
 
-// 当日の「ブロック（✕）対象」イベント（= 営業日以外）を抽出
-const blockingEvents = availability
-    .map(slot => {
-        const title = (slot.summary || slot.title) || '';
-        return {
-            start: new Date(slot.startTime),
-            end: new Date(slot.endTime),
-            title,
-            isBiz: slot.isBusinessDay === true || isBusinessTitle(title) // ← ここを変更
-        };
-    })
-    .filter(ev => ev.start.toDateString() === day.toDateString() && !ev.isBiz);
+                // 当日の「ブロック（✕）対象」イベント（= 営業日以外）を抽出
+                const blockingEvents = availability
+                    .map(slot => {
+                        const title = (slot.summary || slot.title) || '';
+                        return {
+                            start: new Date(slot.startTime),
+                            end: new Date(slot.endTime),
+                            title,
+                            isBiz: slot.isBusinessDay === true || isBusinessTitle(title) // ← ここを変更
+                        };
+                    })
+                    .filter(ev => ev.start.toDateString() === day.toDateString() && !ev.isBiz);
 
                 for (let j = 0; j < times.length; j++) {
                     const cell = table.rows[j].cells[i + 1];
@@ -1581,23 +1592,23 @@ const blockingEvents = availability
                     const fallbackColor = (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) ? 'red' : 'blue';
                     let finalColor = fallbackColor;
 
-// ★★★ ここに追加 ★★★
-// 土曜日は初期カラーを強制で赤にする
-if (slotStart.getDay() === 6) {
-    finalColor = 'red';
-}
-                    
-// ▼ 営業日内なら“✕を○に上書き”して良い（昼休みなど）
-//   ※メニュー時間による slotEnd の伸びに影響されないよう、
-//     「スロットの開始時刻が営業イベントに含まれているか」だけを見る
-const coveringBiz = businessEventTimes.find(ev =>
-    ev.start <= slotStart && slotStart < ev.end
-);
+                    // ★★★ ここに追加 ★★★
+                    // 土曜日は初期カラーを強制で赤にする
+                    if (slotStart.getDay() === 6) {
+                        finalColor = 'red';
+                    }
 
-if (coveringBiz) {
-    isAvailable = true; // 通常ロジックで×でも〇に上書き
-    finalColor = coveringBiz.color || fallbackColor;
-}
+                    // ▼ 営業日内なら“✕を○に上書き”して良い（昼休みなど）
+                    //   ※メニュー時間による slotEnd の伸びに影響されないよう、
+                    //     「スロットの開始時刻が営業イベントに含まれているか」だけを見る
+                    const coveringBiz = businessEventTimes.find(ev =>
+                        ev.start <= slotStart && slotStart < ev.end
+                    );
+
+                    if (coveringBiz) {
+                        isAvailable = true; // 通常ロジックで×でも〇に上書き
+                        finalColor = coveringBiz.color || fallbackColor;
+                    }
 
                     // ▼ 最終ブロック判定（最優先）：営業日以外のイベントと重なっていたら必ず✕
                     const hasBlockingOverlap = blockingEvents.some(ev => ev.start < slotEnd && slotStart < ev.end);
