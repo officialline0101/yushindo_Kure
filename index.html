@@ -503,12 +503,12 @@
             /* サイズ調整が必要なら変更 */
         }
 
+        /* 赤◯を青に統一（駒井様退職のため） */
         .available.red::before {
             content: '◯';
-            color: red;
-            /* 赤い〇 */
+            color: blue;
+            /* 🔵一色に統一 */
             font-size: 16px;
-            /* サイズ調整が必要なら変更 */
         }
 
         .centered-text {
@@ -853,9 +853,6 @@
         <div id="treatment-text" style="margin-bottom: 20px;"></div>
 
         <div class="label">希望日時<span class="required">必須</span></div>
-        <div class="centered-text">
-            【駒井：<span class="circlecalendar red">◯</span>】【久保田：<span class="circlecalendar blue">◯</span>】
-        </div>
         <div class="calendar-container">
             <!-- 月を独立して配置 -->
             <div class="current-month-container">
@@ -1462,8 +1459,10 @@
             const calendar = document.getElementById('calendar1');
             const table = calendar.querySelector('table tbody');
 
+            // 9:30〜13:30 はデフォルト❌（臨時営業の可能性があるため残す）
+            // 通常営業時間は 14:00〜18:00
             const times = [
-                '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+                '09:30', '10:00', '10:30', '11:00', '11:30',
                 '12:00', '12:30', '13:00', '13:30',
                 '14:00', '14:30', '15:00', '15:30',
                 '16:00', '16:30', '17:00', '17:30',
@@ -1563,40 +1562,26 @@
                     const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
                     if (slotStart < now || (slotStart >= now && slotStart < oneHourLater)) isAvailable = false;
 
-                    // 休日（日曜・金曜）
-                    if (slotStart.getDay() === 0 || slotStart.getDay() === 5) isAvailable = false;
-
-                    // 土曜 16:30〜18:00
+                    // 定休日：金・土・日（営業日は月〜木のみ）
                     if (
-                        slotStart.getDay() === 6 &&
-                        ((slotStart.getHours() === 16 && slotStart.getMinutes() >= 30) ||
-                            (slotStart.getHours() === 17) ||
-                            (slotStart.getHours() === 18 && slotStart.getMinutes() < 30))
+                        slotStart.getDay() === 0 || // 日曜
+                        slotStart.getDay() === 5 || // 金曜
+                        slotStart.getDay() === 6    // 土曜
                     ) isAvailable = false;
 
-                    // 昼休み 11:30〜13:30（※この後、営業日内なら上書きで〇にする）
+                    // 9:30〜13:30 はデフォルト❌（臨時営業の可能性があるため残す）
+                    // 通常営業時間は 14:00〜18:00
                     if (
-                        (slotStart.getHours() === 11 && slotStart.getMinutes() >= 30) ||
+                        (slotStart.getHours() === 9 && slotStart.getMinutes() >= 30) ||
+                        (slotStart.getHours() === 10) ||
+                        (slotStart.getHours() === 11) ||
                         (slotStart.getHours() === 12) ||
                         (slotStart.getHours() === 13 && slotStart.getMinutes() <= 30)
                     ) isAvailable = false;
 
-                    // 土曜以外の 12:30〜13:59
-                    if (
-                        (slotStart.getDay() !== 6) &&
-                        ((slotStart.getHours() === 12 && slotStart.getMinutes() >= 30) ||
-                            (slotStart.getHours() === 13 && slotStart.getMinutes() < 60))
-                    ) isAvailable = false;
-
-                    // デフォルト色（午前=赤／午後=青）
-                    const fallbackColor = (slotStart.getHours() < 12 || (slotStart.getHours() === 12 && slotStart.getMinutes() < 30)) ? 'red' : 'blue';
+                    // デフォルト色（🔵一色に統一）
+                    const fallbackColor = 'blue';
                     let finalColor = fallbackColor;
-
-                    // ★★★ ここに追加 ★★★
-                    // 土曜日は初期カラーを強制で赤にする
-                    if (slotStart.getDay() === 6) {
-                        finalColor = 'red';
-                    }
 
                     // ▼ 営業日内なら“✕を○に上書き”して良い（昼休みなど）
                     //   ※メニュー時間による slotEnd の伸びに影響されないよう、
