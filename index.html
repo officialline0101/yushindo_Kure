@@ -620,6 +620,20 @@
             background-color: #4b8e36;
         }
 
+        /* 【予約を行う】ボタン上の最終確認テキスト（院の取り違え防止） */
+        .clinic-confirm {
+            margin: 20px 0 10px;
+            padding: 12px 10px;
+            border: 2px solid #4b8e36;
+            border-radius: 8px;
+            background-color: #f2f9ef;
+            color: #2f5c22;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            line-height: 1.5;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 15px;
@@ -902,6 +916,8 @@
         <div class="label">ご予約内容</div>
         <div id="displayInfo"></div> <!-- ここに選択された情報を表示します -->
 
+        <div class="clinic-confirm">こちらは呉施術院への予約となります</div>
+
         <button class="submit-button" onclick="submitForm()" div id="section-message">予約を行う</button>
     </div>
 
@@ -1122,7 +1138,7 @@
             if (treatmentId === 'treatment1') {
                 treatmentText.innerHTML = createTreatmentContent(
                     '全身施術(鍼灸+整体)',
-                    'https://www.dropbox.com/scl/fi/fbiyva593ko7098stxv89/.png?rlkey=awucy7pbeio5ko2012h3eoe8f&st=ckew9euy&raw=1',
+                    'https://www.dropbox.com/scl/fi/u53tfkv7mh68bzuwxbc51/.png?rlkey=isq1tbpy22oz5gfgdrdm3iava&st=m80sjm32&raw=1',
                     '悠心堂オススメのオーダーメイド治療です。<br>鍼灸のツボ刺激で内臓から調整し、整体ではカラダのコリと血流改善を狙います。<br>鍼は最小限の刺激で最大限の効果を狙い、<br>10～20本程度使います。<br>お灸は、やけどにならないお灸を使います。<br><span style="color: blue;">-全身症状の改善・カラダのメンテナンスを希望の方へ。</span>',
                     '90分', '6,500円', '＋2,200円'
                 );
@@ -1150,7 +1166,7 @@
             } else if (treatmentId === 'treatment5') {
                 treatmentText.innerHTML = createTreatmentContent(
                     '全身施術(鍼灸+整体)',
-                    'https://www.dropbox.com/scl/fi/fbiyva593ko7098stxv89/.png?rlkey=awucy7pbeio5ko2012h3eoe8f&st=ckew9euy&raw=1',
+                    'https://www.dropbox.com/scl/fi/u53tfkv7mh68bzuwxbc51/.png?rlkey=isq1tbpy22oz5gfgdrdm3iava&st=m80sjm32&raw=1',
                     '悠心堂オススメのオーダーメイド治療です。<br>鍼灸のツボ刺激で内臓から調整し、整体ではカラダのコリと血流改善を狙います。<br>鍼は最小限の刺激で最大限の効果を狙い、<br>10～20本程度使います。<br>お灸は、やけどにならないお灸を使います。<br><span style="color: blue;">-全身症状の改善・カラダのメンテナンスを希望の方へ。</span>',
                     '60分', '6,500円', '＋2,200円', false
                 );
@@ -1459,11 +1475,11 @@
             const calendar = document.getElementById('calendar1');
             const table = calendar.querySelector('table tbody');
 
-            // 9:30〜13:30 はデフォルト❌（臨時営業の可能性があるため残す）
+            // 表示は 13:00〜。13:00・13:30 はデフォルト❌
+            //（営業日入力で 13:00 or 13:30 開店にした場合のみ⭕️に上書きされる）
             // 通常営業時間は 14:00〜18:00
             const times = [
-                '09:30', '10:00', '10:30', '11:00', '11:30',
-                '12:00', '12:30', '13:00', '13:30',
+                '13:00', '13:30',
                 '14:00', '14:30', '15:00', '15:30',
                 '16:00', '16:30', '17:00', '17:30',
                 '18:00'
@@ -1569,14 +1585,11 @@
                         slotStart.getDay() === 6    // 土曜
                     ) isAvailable = false;
 
-                    // 9:30〜13:30 はデフォルト❌（臨時営業の可能性があるため残す）
+                    // 13:00・13:30 はデフォルト❌
+                    //（営業日入力で 13:00 or 13:30 開店にした場合のみ後段で⭕️に上書き）
                     // 通常営業時間は 14:00〜18:00
                     if (
-                        (slotStart.getHours() === 9 && slotStart.getMinutes() >= 30) ||
-                        (slotStart.getHours() === 10) ||
-                        (slotStart.getHours() === 11) ||
-                        (slotStart.getHours() === 12) ||
-                        (slotStart.getHours() === 13 && slotStart.getMinutes() <= 30)
+                        slotStart.getHours() === 13 && slotStart.getMinutes() <= 30
                     ) isAvailable = false;
 
                     // デフォルト色（🔵一色に統一）
